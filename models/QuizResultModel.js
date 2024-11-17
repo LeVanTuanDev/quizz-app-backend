@@ -1,3 +1,5 @@
+const mongoose = require("mongoose");
+
 const quizResultSchema = new mongoose.Schema({
   participant: { type: mongoose.Schema.Types.ObjectId, ref: "Participant" },
   quiz: { type: mongoose.Schema.Types.ObjectId, ref: "Quiz" },
