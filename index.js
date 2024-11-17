@@ -6,6 +6,14 @@ const routes = require("./routes/index.js");
 const app = express();
 const PORT = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI;
+const cors = require("cors");
+
+app.use(
+  cors({
+    origin: "https://your-frontend-domain.com", // Thay bằng domain của frontend
+    credentials: true,
+  })
+);
 
 mongoose
   .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
