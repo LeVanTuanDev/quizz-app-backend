@@ -7,4 +7,5 @@ const questionSchema = new mongoose.Schema({
   correctAnswer: { type: mongoose.Schema.Types.ObjectId, ref: "Answer" }, // Đáp án đúng
 });
 
-module.exports = mongoose.model("Question", questionSchema);
+const Question = mongoose.model("Question", questionSchema);
+module.exports = Question;

@@ -14,4 +14,5 @@ const quizResultSchema = new mongoose.Schema({
   completedAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model("QuizResult", quizResultSchema);
+const QuizResult = mongoose.model("QuizResult", quizResultSchema);
+module.exports = QuizResult;

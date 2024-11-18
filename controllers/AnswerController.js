@@ -11,7 +11,7 @@ const answerControllers = {
       });
       res.status(201).json(newAnswer);
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi tạo Answer.", error });
+      res.status(500).json({ message: "Lỗi khi tạo đáp án.", error });
     }
   },
 
@@ -20,7 +20,7 @@ const answerControllers = {
       const answers = await Answer.find().populate("question");
       res.status(200).json(answers);
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi lấy danh sách Answer.", error });
+      res.status(500).json({ message: "Lỗi khi lấy danh sách đáp án.", error });
     }
   },
 
@@ -29,10 +29,10 @@ const answerControllers = {
     try {
       const answer = await Answer.findById(id).populate("question");
       if (!answer)
-        return res.status(404).json({ message: "Answer không tồn tại." });
+        return res.status(404).json({ message: "Đáp án không tồn tại." });
       res.status(200).json(answer);
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi lấy Answer.", error });
+      res.status(500).json({ message: "Lỗi khi lấy đáp án.", error });
     }
   },
 
@@ -43,10 +43,10 @@ const answerControllers = {
         new: true,
       });
       if (!updatedAnswer)
-        return res.status(404).json({ message: "Answer không tồn tại." });
+        return res.status(404).json({ message: "Đáp án không tồn tại." });
       res.status(200).json(updatedAnswer);
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi cập nhật Answer.", error });
+      res.status(500).json({ message: "Lỗi khi cập nhật đáp án.", error });
     }
   },
 
@@ -55,10 +55,10 @@ const answerControllers = {
     try {
       const deletedAnswer = await Answer.findByIdAndDelete(id);
       if (!deletedAnswer)
-        return res.status(404).json({ message: "Answer không tồn tại." });
-      res.status(200).json({ message: "Xóa Answer thành công." });
+        return res.status(404).json({ message: "Đáp án không tồn tại." });
+      res.status(200).json({ message: "Xóa đáp án thành công." });
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi xóa Answer.", error });
+      res.status(500).json({ message: "Lỗi khi xóa đáp án.", error });
     }
   },
 };

@@ -4,15 +4,15 @@ const questionControllers = {
   createQuestion: async (req, res) => {
     const { quiz, questionText, answers, correctAnswer } = req.body;
     try {
-      const newQuestion = await Question.create({
+      const question = await Question.create({
         quiz,
         questionText,
         answers,
         correctAnswer,
       });
-      res.status(201).json(newQuestion);
+      res.status(201).json(question);
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi tạo Question.", error });
+      res.status(500).json({ message: error.message });
     }
   },
 
@@ -25,7 +25,7 @@ const questionControllers = {
     } catch (error) {
       res
         .status(500)
-        .json({ message: "Lỗi khi lấy danh sách Question.", error });
+        .json({ message: "Lỗi khi lấy danh sách câu hỏi.", error });
     }
   },
 
@@ -39,7 +39,7 @@ const questionControllers = {
         return res.status(404).json({ message: "Question không tồn tại." });
       res.status(200).json(question);
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi lấy Question.", error });
+      res.status(500).json({ message: "Lỗi khi lấy câu hỏi.", error });
     }
   },
 
@@ -50,10 +50,10 @@ const questionControllers = {
         new: true,
       });
       if (!updatedQuestion)
-        return res.status(404).json({ message: "Question không tồn tại." });
+        return res.status(404).json({ message: "Câu hỏi không tồn tại." });
       res.status(200).json(updatedQuestion);
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi cập nhật Question.", error });
+      res.status(500).json({ message: "Lỗi khi cập nhật câu hỏi.", error });
     }
   },
 
@@ -62,10 +62,10 @@ const questionControllers = {
     try {
       const deletedQuestion = await Question.findByIdAndDelete(id);
       if (!deletedQuestion)
-        return res.status(404).json({ message: "Question không tồn tại." });
-      res.status(200).json({ message: "Xóa Question thành công." });
+        return res.status(404).json({ message: "Câu hỏi không tồn tại." });
+      res.status(200).json({ message: "Xóa câu hỏi thành công." });
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi xóa Question.", error });
+      res.status(500).json({ message: "Lỗi khi xóa câu hỏi.", error });
     }
   },
 };

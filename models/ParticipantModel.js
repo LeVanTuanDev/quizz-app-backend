@@ -7,4 +7,5 @@ const participantSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model("Participant", participantSchema);
+const Participant = mongoose.model("Participant", participantSchema);
+module.exports = Participant;

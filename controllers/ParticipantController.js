@@ -11,7 +11,7 @@ const participantControllers = {
       });
       res.status(201).json(newParticipant);
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi tạo Participant.", error });
+      res.status(500).json({ message: "Lỗi khi tạo người tham gia.", error });
     }
   },
 
@@ -22,7 +22,7 @@ const participantControllers = {
     } catch (error) {
       res
         .status(500)
-        .json({ message: "Lỗi khi lấy danh sách Participant.", error });
+        .json({ message: "Lỗi khi lấy danh sách người tham gia.", error });
     }
   },
 
@@ -33,10 +33,12 @@ const participantControllers = {
         "quizResults"
       );
       if (!participant)
-        return res.status(404).json({ message: "Participant không tồn tại." });
+        return res
+          .status(404)
+          .json({ message: "Người tham gia không tồn tại." });
       res.status(200).json(participant);
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi lấy Participant.", error });
+      res.status(500).json({ message: "Lỗi khi lấy người tham gia.", error });
     }
   },
 
@@ -49,10 +51,14 @@ const participantControllers = {
         { new: true }
       );
       if (!updatedParticipant)
-        return res.status(404).json({ message: "Participant không tồn tại." });
+        return res
+          .status(404)
+          .json({ message: "Người tham gia không tồn tại." });
       res.status(200).json(updatedParticipant);
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi cập nhật Participant.", error });
+      res
+        .status(500)
+        .json({ message: "Lỗi khi cập nhật người tham gia.", error });
     }
   },
 
@@ -61,10 +67,12 @@ const participantControllers = {
     try {
       const deletedParticipant = await Participant.findByIdAndDelete(id);
       if (!deletedParticipant)
-        return res.status(404).json({ message: "Participant không tồn tại." });
-      res.status(200).json({ message: "Xóa Participant thành công." });
+        return res
+          .status(404)
+          .json({ message: "Người tham gia không tồn tại." });
+      res.status(200).json({ message: "Xóa người tham gia thành công." });
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi xóa Participant.", error });
+      res.status(500).json({ message: "Lỗi khi xóa người tham gia.", error });
     }
   },
 };
