@@ -4,7 +4,15 @@ const quizControllers = {
   createQuiz: async (req, res) => {
     const { title, questions, createdBy } = req.body;
     try {
-      const newQuiz = await Quiz.create({ title, questions, createdBy });
+      const newQuiz = await Quiz.create({
+        title,
+        questions,
+        createdBy,
+        questionCount: questions.length, // Tự động tính số lượng câu hỏi
+        participantCount: 0, // Ban đầu không có người tham gia
+        correctRate: 0, // Tỉ lệ đúng khởi tạo
+        incorrectRate: 0, // Tỉ lệ sai khởi tạo
+      });
       res.status(201).json(newQuiz);
     } catch (error) {
       res.status(500).json({ message: "Lỗi khi tạo Quiz.", error });
@@ -34,12 +42,21 @@ const quizControllers = {
 
   updateQuiz: async (req, res) => {
     const { id } = req.params;
+    const { questions } = req.body;
+
     try {
-      const updatedQuiz = await Quiz.findByIdAndUpdate(id, req.body, {
-        new: true,
-      });
-      if (!updatedQuiz)
+      const quiz = await Quiz.findById(id);
+      if (!quiz)
         return res.status(404).json({ message: "Quiz không tồn tại." });
+
+      if (questions) {
+        quiz.questions = questions;
+        quiz.questionCount = questions.length;
+      }
+
+      Object.assign(quiz, req.body);
+
+      const updatedQuiz = await quiz.save();
       res.status(200).json(updatedQuiz);
     } catch (error) {
       res.status(500).json({ message: "Lỗi khi cập nhật Quiz.", error });
