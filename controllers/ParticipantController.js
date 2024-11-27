@@ -1,78 +1,86 @@
-const Participant = require("../models/ParticipantModel.js");
+const Participant = require("../models/ParticipantModel");
+const QuizResult = require("../models/QuizResultModel");
+const Question = require("../models/QuestionModel");
 
 const participantControllers = {
-  createParticipant: async (req, res) => {
-    const { name, studentId, quizResults } = req.body;
+  participateInQuiz: async (req, res) => {
+    const { participantId, quizId, answers } = req.body;
     try {
-      const newParticipant = await Participant.create({
-        name,
-        studentId,
-        quizResults,
+      // Xác minh người tham gia
+      const participant = await Participant.findById(participantId);
+      if (!participant) {
+        return res.status(404).json({ message: "Participant not found" });
+      }
+
+      // Xử lý kết quả quiz
+      let correctCount = 0;
+      const results = [];
+
+      for (const answer of answers) {
+        const question = await Question.findById(answer.question).populate(
+          "correctAnswer"
+        );
+
+        if (!question) {
+          return res
+            .status(404)
+            .json({ message: `Question ${answer.question} not found` });
+        }
+
+        const isCorrect =
+          question.correctAnswer._id.toString() === answer.answer;
+        if (isCorrect) correctCount++;
+
+        results.push({
+          question: answer.question,
+          answer: answer.answer,
+          isCorrect,
+        });
+      }
+
+      // Lưu kết quả quiz
+      const quizResult = new QuizResult({
+        participant: participantId,
+        quiz: quizId,
+        answers: results,
       });
-      res.status(201).json(newParticipant);
+      await quizResult.save();
+
+      // Thêm quizResult vào participant
+      await Participant.findByIdAndUpdate(participantId, {
+        $push: { quizResults: quizResult._id },
+      });
+
+      // Tính toán số liệu
+      const totalQuestions = answers.length;
+      const correctRate = (correctCount / totalQuestions) * 100;
+
+      res.status(201).json({
+        message: "Quiz participation recorded successfully",
+        quizResult,
+        correctRate,
+        incorrectRate: 100 - correctRate,
+      });
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi tạo người tham gia.", error });
+      res.status(500).json({ error: error.message });
     }
   },
 
-  getAllParticipants: async (req, res) => {
+  getQuizResult: async (req, res) => {
+    const { participantId, quizId } = req.params;
     try {
-      const participants = await Participant.find().populate("quizResults");
-      res.status(200).json(participants);
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Lỗi khi lấy danh sách người tham gia.", error });
-    }
-  },
+      const quizResult = await QuizResult.findOne({
+        participant: participantId,
+        quiz: quizId,
+      }).populate("answers.question answers.answer");
 
-  getParticipantById: async (req, res) => {
-    const { id } = req.params;
-    try {
-      const participant = await Participant.findById(id).populate(
-        "quizResults"
-      );
-      if (!participant)
-        return res
-          .status(404)
-          .json({ message: "Người tham gia không tồn tại." });
-      res.status(200).json(participant);
-    } catch (error) {
-      res.status(500).json({ message: "Lỗi khi lấy người tham gia.", error });
-    }
-  },
+      if (!quizResult) {
+        return res.status(404).json({ message: "Quiz result not found" });
+      }
 
-  updateParticipant: async (req, res) => {
-    const { id } = req.params;
-    try {
-      const updatedParticipant = await Participant.findByIdAndUpdate(
-        id,
-        req.body,
-        { new: true }
-      );
-      if (!updatedParticipant)
-        return res
-          .status(404)
-          .json({ message: "Người tham gia không tồn tại." });
-      res.status(200).json(updatedParticipant);
+      res.status(200).json({ quizResult });
     } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Lỗi khi cập nhật người tham gia.", error });
-    }
-  },
-
-  deleteParticipant: async (req, res) => {
-    const { id } = req.params;
-    try {
-      const deletedParticipant = await Participant.findByIdAndDelete(id);
-      if (!deletedParticipant)
-        return res
-          .status(404)
-          .json({ message: "Người tham gia không tồn tại." });
-      res.status(200).json({ message: "Xóa người tham gia thành công." });
-    } catch (error) {
-      res.status(500).json({ message: "Lỗi khi xóa người tham gia.", error });
+      res.status(500).json({ error: error.message });
     }
   },
 };

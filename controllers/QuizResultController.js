@@ -1,73 +1,63 @@
-const QuizResult = require("../models/QuizResultModel.js");
+const QuizResult = require("../models/QuizResultModel");
+const Participant = require("../models/ParticipantModel");
 
 const quizResultController = {
-  createQuizResult: async (req, res) => {
-    const { participant, quiz, score, answers } = req.body;
+  saveQuizResult: async (req, res) => {
+    const { participantId, quizId, answers } = req.body;
     try {
-      const newQuizResult = await QuizResult.create({
-        participant,
-        quiz,
-        score,
+      // Kiểm tra nếu participant tồn tại
+      const participant = await Participant.findById(participantId);
+      if (!participant) {
+        return res.status(404).json({ message: "Participant not found" });
+      }
+
+      // Lưu kết quả quiz
+      const quizResult = new QuizResult({
+        participant: participantId,
+        quiz: quizId,
         answers,
       });
-      res.status(201).json(newQuizResult);
-    } catch (error) {
-      res.status(500).json({ message: "Lỗi khi tạo QuizResult.", error });
-    }
-  },
+      await quizResult.save();
 
-  getAllQuizResults: async (req, res) => {
-    try {
-      const quizResults = await QuizResult.find().populate(
-        "participant quiz answers.question answers.answer"
-      );
-      res.status(200).json(quizResults);
-    } catch (error) {
+      // Cập nhật quizResults của participant
+      await Participant.findByIdAndUpdate(participantId, {
+        $push: { quizResults: quizResult._id },
+      });
+
       res
-        .status(500)
-        .json({ message: "Lỗi khi lấy danh sách QuizResult.", error });
+        .status(201)
+        .json({ message: "Quiz result saved successfully", quizResult });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
     }
   },
 
-  getQuizResultById: async (req, res) => {
-    const { id } = req.params;
+  calculateRate: async (req, res) => {
+    const { quizResultId } = req.params;
     try {
-      const quizResult = await QuizResult.findById(id).populate(
-        "participant quiz answers.question answers.answer"
+      // Lấy kết quả quiz
+      const quizResult = await QuizResult.findById(quizResultId).populate(
+        "answers.question answers.answer"
       );
-      if (!quizResult)
-        return res.status(404).json({ message: "QuizResult không tồn tại." });
-      res.status(200).json(quizResult);
-    } catch (error) {
-      res.status(500).json({ message: "Lỗi khi lấy QuizResult.", error });
-    }
-  },
 
-  updateQuizResult: async (req, res) => {
-    const { id } = req.params;
-    try {
-      const updatedQuizResult = await QuizResult.findByIdAndUpdate(
-        id,
-        req.body,
-        { new: true }
-      );
-      if (!updatedQuizResult)
-        return res.status(404).json({ message: "QuizResult không tồn tại." });
-      res.status(200).json(updatedQuizResult);
-    } catch (error) {
-      res.status(500).json({ message: "Lỗi khi cập nhật QuizResult.", error });
-    }
-  },
+      if (!quizResult) {
+        return res.status(404).json({ message: "Quiz result not found" });
+      }
 
-  deleteQuizResult: async (req, res) => {
-    const { id } = req.params;
-    try {
-      const deletedQuizResult = await QuizResult.findByIdAndDelete(id);
-      if (!deletedQuizResult)
-        return res.status(404).json({ message: "QuizResult không tồn tại." });
-      res.status(200).json({ message: "Xóa QuizResult thành công." });
+      const totalQuestions = quizResult.answers.length;
+      const correctCount = quizResult.answers.filter((a) => a.isCorrect).length;
+
+      // Tính tỷ lệ
+      const correctRate = (correctCount / totalQuestions) * 100;
+      const incorrectRate = 100 - correctRate;
+
+      res.status(200).json({
+        message: "Rate calculated successfully",
+        correctRate,
+        incorrectRate,
+      });
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi xóa QuizResult.", error });
+      res.status(500).json({ error: error.message });
     }
   },
 };

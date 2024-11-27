@@ -2,41 +2,36 @@ const Quiz = require("../models/QuizModel.js");
 
 const quizControllers = {
   createQuiz: async (req, res) => {
-    const { title, questions, createdBy } = req.body;
+    const { title, createdBy } = req.body;
     try {
-      const newQuiz = await Quiz.create({
-        title,
-        questions,
-        createdBy,
-        questionCount: questions.length, // Tự động tính số lượng câu hỏi
-        participantCount: 0, // Ban đầu không có người tham gia
-        correctRate: 0, // Tỉ lệ đúng khởi tạo
-        incorrectRate: 0, // Tỉ lệ sai khởi tạo
-      });
-      res.status(201).json(newQuiz);
+      const quiz = new Quiz({ title, createdBy });
+      await quiz.save();
+      res.status(201).json(quiz);
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi tạo Quiz.", error });
+      res.status(500).json({ error: error.message });
     }
   },
 
   getAllQuizzes: async (req, res) => {
     try {
-      const quizzes = await Quiz.find().populate("questions createdBy");
+      const quizzes = await Quiz.find().populate("createdBy");
       res.status(200).json(quizzes);
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi lấy danh sách Quiz.", error });
+      res.status(500).json({ error: error.message });
     }
   },
 
   getQuizById: async (req, res) => {
     const { id } = req.params;
     try {
-      const quiz = await Quiz.findById(id).populate("questions createdBy");
+      const quiz = await Quiz.findById(id)
+        .populate("questions")
+        .populate("createdBy");
       if (!quiz)
         return res.status(404).json({ message: "Quiz không tồn tại." });
       res.status(200).json(quiz);
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi lấy Quiz.", error });
+      res.status(500).json({ error: error.message });
     }
   },
 

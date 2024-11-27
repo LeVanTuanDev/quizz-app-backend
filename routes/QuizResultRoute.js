@@ -1,17 +1,11 @@
 const {
-  createQuizResult,
-  getAllQuizResults,
-  getQuizResultById,
-  updateQuizResult,
-  deleteQuizResult,
+  saveQuizResult,
+  calculateRate,
 } = require("../controllers/QuizResultController.js");
 
 const router = require("express").Router();
 
-router.post("/create", createQuizResult);
-router.get("/", getAllQuizResults);
-router.get("/:id", getQuizResultById);
-router.put("/:id", updateQuizResult);
-router.delete("/:id", deleteQuizResult);
+router.post("/", saveQuizResult);
+router.get("/:quizResultId", calculateRate);
 
 module.exports = router;

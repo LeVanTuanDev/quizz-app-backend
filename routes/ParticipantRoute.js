@@ -1,17 +1,11 @@
 const {
-  createParticipant,
-  getAllParticipants,
-  getParticipantById,
-  updateParticipant,
-  deleteParticipant,
+  participateInQuiz,
+  getQuizResult,
 } = require("../controllers/ParticipantController.js");
 
 const router = require("express").Router();
 
-router.post("/create", createParticipant);
-router.get("/", getAllParticipants);
-router.get("/:id", getParticipantById);
-router.put("/:id", updateParticipant);
-router.delete("/:id", deleteParticipant);
+router.post("/participate", participateInQuiz);
+router.get("/:participantId/:quizId", getQuizResult);
 
 module.exports = router;

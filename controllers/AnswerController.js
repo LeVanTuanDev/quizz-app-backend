@@ -1,17 +1,25 @@
 const Answer = require("../models/AnswerModel.js");
+const Question = require("../models/QuestionModel.js");
 
 const answerControllers = {
   createAnswer: async (req, res) => {
-    const { question, answerText, isCorrect } = req.body;
+    const { id, answerText, isCorrect } = req.body;
+
     try {
-      const newAnswer = await Answer.create({
-        question,
+      const answer = new Answer({
+        question: id,
         answerText,
         isCorrect,
       });
-      res.status(201).json(newAnswer);
+      await answer.save();
+
+      await Question.findByIdAndUpdate(id, {
+        $push: { answers: answer._id },
+      });
+
+      res.status(201).json({ message: "Answer added successfully", answer });
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi tạo đáp án.", error });
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -38,15 +46,24 @@ const answerControllers = {
 
   updateAnswer: async (req, res) => {
     const { id } = req.params;
+    const { answerText, isCorrect } = req.body;
+
     try {
-      const updatedAnswer = await Answer.findByIdAndUpdate(id, req.body, {
-        new: true,
-      });
-      if (!updatedAnswer)
-        return res.status(404).json({ message: "Đáp án không tồn tại." });
-      res.status(200).json(updatedAnswer);
+      const updatedAnswer = await Answer.findByIdAndUpdate(
+        id,
+        { answerText, isCorrect },
+        { new: true }
+      );
+
+      if (!updatedAnswer) {
+        return res.status(404).json({ message: "Answer not found" });
+      }
+
+      res
+        .status(200)
+        .json({ message: "Answer updated successfully", updatedAnswer });
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi cập nhật đáp án.", error });
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -54,11 +71,18 @@ const answerControllers = {
     const { id } = req.params;
     try {
       const deletedAnswer = await Answer.findByIdAndDelete(id);
-      if (!deletedAnswer)
-        return res.status(404).json({ message: "Đáp án không tồn tại." });
-      res.status(200).json({ message: "Xóa đáp án thành công." });
+
+      if (!deletedAnswer) {
+        return res.status(404).json({ message: "Answer not found" });
+      }
+
+      await Question.findByIdAndUpdate(deletedAnswer.question, {
+        $pull: { answers: id },
+      });
+
+      res.status(200).json({ message: "Answer deleted successfully" });
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi xóa đáp án.", error });
+      res.status(500).json({ error: error.message });
     }
   },
 };

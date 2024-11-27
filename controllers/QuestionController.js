@@ -1,18 +1,22 @@
 const Question = require("../models/QuestionModel.js");
+const Quiz = require("../models/QuizModel.js");
 
 const questionControllers = {
   createQuestion: async (req, res) => {
-    const { quiz, questionText, answers, correctAnswer } = req.body;
+    const { quiz, questionText } = req.body;
+
     try {
-      const question = await Question.create({
-        quiz,
-        questionText,
-        answers,
-        correctAnswer,
+      const question = new Question(quiz, questionText);
+      await question.save();
+
+      await Quiz.findByIdAndUpdate(quizId, {
+        $push: { questions: question._id },
+        $inc: { questionCount: 1 },
       });
+
       res.status(201).json(question);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -45,15 +49,23 @@ const questionControllers = {
 
   updateQuestion: async (req, res) => {
     const { id } = req.params;
+    const { questionText, correctAnswer } = req.body;
     try {
-      const updatedQuestion = await Question.findByIdAndUpdate(id, req.body, {
-        new: true,
-      });
-      if (!updatedQuestion)
-        return res.status(404).json({ message: "Câu hỏi không tồn tại." });
-      res.status(200).json(updatedQuestion);
+      const updatedQuestion = await Question.findByIdAndUpdate(
+        id,
+        { questionText, correctAnswer },
+        { new: true }
+      );
+
+      if (!updatedQuestion) {
+        return res.status(404).json({ message: "Question not found" });
+      }
+
+      res
+        .status(200)
+        .json({ message: "Question updated successfully", updatedQuestion });
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi cập nhật câu hỏi.", error });
+      res.status(500).json({ error: error.message });
     }
   },
 
@@ -61,11 +73,19 @@ const questionControllers = {
     const { id } = req.params;
     try {
       const deletedQuestion = await Question.findByIdAndDelete(id);
-      if (!deletedQuestion)
-        return res.status(404).json({ message: "Câu hỏi không tồn tại." });
-      res.status(200).json({ message: "Xóa câu hỏi thành công." });
+
+      if (!deletedQuestion) {
+        return res.status(404).json({ message: "Question not found" });
+      }
+
+      await Quiz.findByIdAndUpdate(deletedQuestion.quiz, {
+        $pull: { questions: id },
+        $inc: { questionCount: -1 },
+      });
+
+      res.status(200).json({ message: "Question deleted successfully" });
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi xóa câu hỏi.", error });
+      res.status(500).json({ error: error.message });
     }
   },
 };
