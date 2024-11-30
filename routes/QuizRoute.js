@@ -1,5 +1,6 @@
 const {
   createQuiz,
+  createQuizFull,
   getAllQuizzes,
   getQuizById,
   updateQuiz,
@@ -9,6 +10,7 @@ const {
 const router = require("express").Router();
 
 router.post("/create", createQuiz);
+router.post("/create-quiz", createQuizFull);
 router.get("/", getAllQuizzes);
 router.get("/:id", getQuizById);
 router.put("/:id", updateQuiz);

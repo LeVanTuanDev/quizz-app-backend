@@ -12,6 +12,81 @@ const quizControllers = {
     }
   },
 
+  createQuizFull: async (req, res) => {
+    const { title, createdBy, questions } = req.body;
+
+    const session = await Quiz.startSession();
+    session.startTransaction();
+
+    try {
+      const quiz = new Quiz({ title, createdBy });
+      await quiz.save({ session }); // Tạo Quiz
+
+      const questionIds = [];
+      for (const q of questions) {
+        const question = new Question({
+          quiz: quiz._id,
+          questionText: q.questionText,
+        });
+        await question.save({ session }); // Tạo Question
+
+        questionIds.push(question._id);
+
+        const answerIds = [];
+        for (const a of q.answers) {
+          const answer = new Answer({
+            question: question._id,
+            answerText: a.answerText,
+            isCorrect: a.isCorrect,
+          });
+          await answer.save({ session }); // Tạo Answer
+          answerIds.push(answer._id);
+        }
+
+        question.answers = answerIds;
+        await question.save({ session });
+      }
+
+      quiz.questions = questionIds;
+      quiz.questionCount = questionIds.length;
+      await quiz.save({ session });
+
+      await session.commitTransaction();
+      session.endSession();
+
+      res.status(201).json({
+        message: "Quiz đã được tạo thành công",
+        quiz,
+      });
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  // Mẫu Request
+  // {
+  //   "title": "Math Quiz",
+  //   "createdBy": "admin",
+  //   "questions": [
+  //     {
+  //       "questionText": "What is 2 + 2?",
+  //       "answers": [
+  //         { "answerText": "3", "isCorrect": false },
+  //         { "answerText": "4", "isCorrect": true }
+  //       ]
+  //     },
+  //     {
+  //       "questionText": "What is 3 + 5?",
+  //       "answers": [
+  //         { "answerText": "7", "isCorrect": false },
+  //         { "answerText": "8", "isCorrect": true }
+  //       ]
+  //     }
+  //   ]
+  // }
+
   getAllQuizzes: async (req, res) => {
     try {
       const quizzes = await Quiz.find().populate("createdBy");

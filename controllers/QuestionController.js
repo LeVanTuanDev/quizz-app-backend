@@ -3,13 +3,13 @@ const Quiz = require("../models/QuizModel.js");
 
 const questionControllers = {
   createQuestion: async (req, res) => {
-    const { quiz, questionText } = req.body;
+    const { id, questionText } = req.body;
 
     try {
-      const question = new Question(quiz, questionText);
+      const question = new Question(id, questionText);
       await question.save();
 
-      await Quiz.findByIdAndUpdate(quizId, {
+      await Quiz.findByIdAndUpdate(id, {
         $push: { questions: question._id },
         $inc: { questionCount: 1 },
       });
