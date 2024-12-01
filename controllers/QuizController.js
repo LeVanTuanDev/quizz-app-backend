@@ -55,7 +55,7 @@ const quizControllers = {
       session.endSession();
 
       res.status(201).json({
-        message: "Quiz đã được tạo thành công",
+        message: "Quiz created successfully.",
         quiz,
       });
     } catch (error) {
@@ -102,8 +102,7 @@ const quizControllers = {
       const quiz = await Quiz.findById(id)
         .populate("questions")
         .populate("createdBy");
-      if (!quiz)
-        return res.status(404).json({ message: "Quiz không tồn tại." });
+      if (!quiz) return res.status(404).json({ message: "Quiz not found." });
       res.status(200).json(quiz);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -116,8 +115,7 @@ const quizControllers = {
 
     try {
       const quiz = await Quiz.findById(id);
-      if (!quiz)
-        return res.status(404).json({ message: "Quiz không tồn tại." });
+      if (!quiz) return res.status(404).json({ message: "Quiz not found." });
 
       if (questions) {
         quiz.questions = questions;
@@ -129,7 +127,7 @@ const quizControllers = {
       const updatedQuiz = await quiz.save();
       res.status(200).json(updatedQuiz);
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi cập nhật Quiz.", error });
+      res.status(500).json({ message: "Error when updating a quiz.", error });
     }
   },
 
@@ -138,10 +136,10 @@ const quizControllers = {
     try {
       const deletedQuiz = await Quiz.findByIdAndDelete(id);
       if (!deletedQuiz)
-        return res.status(404).json({ message: "Quiz không tồn tại." });
-      res.status(200).json({ message: "Xóa Quiz thành công." });
+        return res.status(404).json({ message: "Quiz not found." });
+      res.status(200).json({ message: "Deleted successfully." });
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi xóa Quiz.", error });
+      res.status(500).json({ message: "Error when deleting a quiz.", error });
     }
   },
 };

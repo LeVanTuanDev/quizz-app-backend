@@ -28,7 +28,9 @@ const answerControllers = {
       const answers = await Answer.find().populate("question");
       res.status(200).json(answers);
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi lấy danh sách đáp án.", error });
+      res
+        .status(500)
+        .json({ message: "Error when getting a list of answers.", error });
     }
   },
 
@@ -36,11 +38,10 @@ const answerControllers = {
     const { id } = req.params;
     try {
       const answer = await Answer.findById(id).populate("question");
-      if (!answer)
-        return res.status(404).json({ message: "Đáp án không tồn tại." });
+      if (!answer) return res.status(404).json({ message: "Answer not found" });
       res.status(200).json(answer);
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi lấy đáp án.", error });
+      res.status(500).json({ message: "Error when getting an answer.", error });
     }
   },
 

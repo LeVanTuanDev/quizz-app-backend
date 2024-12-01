@@ -29,7 +29,7 @@ const questionControllers = {
     } catch (error) {
       res
         .status(500)
-        .json({ message: "Lỗi khi lấy danh sách câu hỏi.", error });
+        .json({ message: "Error when getting a list of questions.", error });
     }
   },
 
@@ -40,10 +40,12 @@ const questionControllers = {
         "quiz answers correctAnswer"
       );
       if (!question)
-        return res.status(404).json({ message: "Question không tồn tại." });
+        return res.status(404).json({ message: "Question not found" });
       res.status(200).json(question);
     } catch (error) {
-      res.status(500).json({ message: "Lỗi khi lấy câu hỏi.", error });
+      res
+        .status(500)
+        .json({ message: "Error when getting a question.", error });
     }
   },
 

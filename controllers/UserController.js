@@ -11,7 +11,7 @@ const userControllers = {
         password: hashedPassword,
       });
       await user.save();
-      res.status(201).json({ message: "Đăng ký tài khoản thành công", user });
+      res.status(201).json({ message: "Register successfully", user });
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
@@ -27,9 +27,9 @@ const userControllers = {
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
           expiresIn: "1h",
         });
-        res.json({ message: "Đăng nhập thành công", token });
+        res.json({ message: "Login successfully", token });
       } else {
-        res.status(400).json({ error: "Sai tài khoản hoặc mật khẩu" });
+        res.status(400).json({ error: "Incorrect username or password" });
       }
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -52,28 +52,28 @@ const userControllers = {
     if (!oldPassword || !newPassword) {
       return res
         .status(400)
-        .json({ message: "Vui lòng cung cấp đầy đủ thông tin." });
+        .json({ message: "Please provide old and new passwords." });
     }
 
     try {
       const user = await User.findOne({ username });
       if (!user) {
-        return res.status(404).json({ message: "Người dùng không tồn tại." });
+        return res.status(404).json({ message: "Users not found." });
       }
 
       const isMatch = await bcrypt.compare(oldPassword, user.password);
       if (!isMatch) {
-        return res.status(401).json({ message: "Mật khẩu cũ không đúng." });
+        return res.status(401).json({ message: "Password incorrect." });
       }
 
       const hashedPassword = await bcrypt.hash(newPassword, 10);
       user.password = hashedPassword;
       await user.save();
 
-      res.status(200).json({ message: "Đổi mật khẩu thành công." });
+      res.status(200).json({ message: "Change password successfully." });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Có lỗi xảy ra, vui lòng thử lại." });
+      res.status(500).json({ message: "Happened an error." });
     }
   },
 
@@ -83,13 +83,13 @@ const userControllers = {
     try {
       const user = await User.findOneAndDelete({ username });
       if (!user) {
-        return res.status(404).json({ message: "Người dùng không tồn tại." });
+        return res.status(404).json({ message: "Users not found." });
       }
 
-      res.status(200).json({ message: "Xóa tài khoản thành công." });
+      res.status(200).json({ message: "Delete user successfully." });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: "Có lỗi xảy ra, vui lòng thử lại." });
+      res.status(500).json({ message: "Error when deleting a user." });
     }
   },
 };
