@@ -1,4 +1,6 @@
 const Quiz = require("../models/QuizModel.js");
+const Question = require("../models/QuestionModel.js");
+const Answer = require("../models/AnswerModel.js");
 
 const quizControllers = {
   createQuiz: async (req, res) => {
