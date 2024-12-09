@@ -70,7 +70,7 @@ const quizControllers = {
   // Mẫu Request
   // {
   //   "title": "Math Quiz",
-  //   "createdBy": "admin",
+  //   "createdBy": "674b1ea4ac0cba192d1503d8",
   //   "questions": [
   //     {
   //       "questionText": "What is 2 + 2?",

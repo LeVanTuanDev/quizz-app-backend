@@ -1,6 +1,6 @@
 const User = require("../models/UserModel.js");
-const bcrypt = require("bcrypt"); // Để mã hóa mật khẩu
-const jwt = require("jsonwebtoken"); // Để tạo token
+const bcrypt = require("bcrypt");
+const generateToken = require("../middlewares/tokenMiddleware");
 
 const userControllers = {
   Register: async (req, res) => {
@@ -24,9 +24,7 @@ const userControllers = {
       const user = await User.findOne({ username });
 
       if (user && (await bcrypt.compare(password, user.password))) {
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-          expiresIn: "1h",
-        });
+        const token = generateToken(user._id);
         res.json({ message: "Login successfully", token });
       } else {
         res.status(400).json({ error: "Incorrect username or password" });
@@ -40,6 +38,16 @@ const userControllers = {
     try {
       const users = await User.find();
       res.json(users);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  GetUserById: async (req, res) => {
+    const { id } = req.params;
+    try {
+      const user = await User.findById(id);
+      res.json(user);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

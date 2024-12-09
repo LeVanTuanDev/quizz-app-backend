@@ -5,13 +5,13 @@ const {
   updateQuestion,
   deleteQuestion,
 } = require("../controllers/QuestionController.js");
-
+const authenticateToken = require("../middleware/auth.js");
 const router = require("express").Router();
 
-router.post("/create", createQuestion);
+router.post("/create", authenticateToken, createQuestion);
 router.get("/", getAllQuestions);
-router.get("/:id", getQuestionById);
-router.put("/:id", updateQuestion);
-router.delete("/:id", deleteQuestion);
+router.get("/:id", authenticateToken, getQuestionById);
+router.put("/:id", authenticateToken, updateQuestion);
+router.delete("/:id", authenticateToken, deleteQuestion);
 
 module.exports = router;

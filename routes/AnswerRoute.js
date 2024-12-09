@@ -5,13 +5,14 @@ const {
   updateAnswer,
   deleteAnswer,
 } = require("../controllers/AnswerController.js");
+const authenticateToken = require("../middleware/auth.js");
 
 const router = require("express").Router();
 
-router.post("/create", createAnswer);
+router.post("/create", authenticateToken, createAnswer);
 router.get("/", getAllAnswers);
-router.get("/:id", getAnswerById);
-router.put("/:id", updateAnswer);
-router.delete("/:id", deleteAnswer);
+router.get("/:id", authenticateToken, getAnswerById);
+router.put("/:id", authenticateToken, updateAnswer);
+router.delete("/:id", authenticateToken, deleteAnswer);
 
 module.exports = router;

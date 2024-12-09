@@ -6,14 +6,15 @@ const {
   updateQuiz,
   deleteQuiz,
 } = require("../controllers/QuizController.js");
+const authenticateToken = require("../middleware/auth.js");
 
 const router = require("express").Router();
 
-router.post("/create", createQuiz);
-router.post("/create-quiz", createQuizFull);
+router.post("/create", authenticateToken, createQuiz);
+router.post("/create-quiz", authenticateToken, createQuizFull);
 router.get("/", getAllQuizzes);
-router.get("/:id", getQuizById);
-router.put("/:id", updateQuiz);
-router.delete("/:id", deleteQuiz);
+router.get("/:id", authenticateToken, getQuizById);
+router.put("/:id", authenticateToken, updateQuiz);
+router.delete("/:id", authenticateToken, deleteQuiz);
 
 module.exports = router;
