@@ -43,10 +43,10 @@ const userControllers = {
     }
   },
 
-  GetUserById: async (req, res) => {
-    const { id } = req.params;
+  GetUserByUsername: async (req, res) => {
+    const { username } = req.body;
     try {
-      const user = await User.findById(id);
+      const user = await User.findOne({ username });
       res.json(user);
     } catch (error) {
       res.status(500).json({ error: error.message });
