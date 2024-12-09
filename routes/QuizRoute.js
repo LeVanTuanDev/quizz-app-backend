@@ -11,7 +11,7 @@ const { authenticateToken } = require("../middleware/auth.js");
 const router = require("express").Router();
 
 router.post("/create", authenticateToken, createQuiz);
-router.post("/create-quiz", authenticateToken, createQuizFull);
+router.post("/create-quiz", createQuizFull);
 router.get("/", getAllQuizzes);
 router.get("/:id", authenticateToken, getQuizById);
 router.put("/:id", authenticateToken, updateQuiz);

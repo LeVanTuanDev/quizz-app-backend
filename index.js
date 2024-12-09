@@ -10,7 +10,7 @@ const cors = require("cors");
 
 app.use(
   cors({
-    origin: "*", // Cho phép tất cả các domain
+    origin: "*",
     credentials: true,
   })
 );
