@@ -25,7 +25,7 @@ const userControllers = {
 
       if (user && (await bcrypt.compare(password, user.password))) {
         const token = generateToken(user._id);
-        res.json({ message: "Login successfully", token });
+        res.json({ message: "Login successfully", token, user });
       } else {
         res.status(400).json({ error: "Incorrect username or password" });
       }
