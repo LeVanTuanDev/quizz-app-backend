@@ -1,6 +1,6 @@
 const User = require("../models/UserModel.js");
 const bcrypt = require("bcrypt");
-const generateToken = require("../middlewares/tokenMiddleware");
+const { generateToken } = require("../middleware/auth.js");
 
 const userControllers = {
   Register: async (req, res) => {

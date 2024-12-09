@@ -5,7 +5,8 @@ const {
   updateQuestion,
   deleteQuestion,
 } = require("../controllers/QuestionController.js");
-const authenticateToken = require("../middleware/auth.js");
+const { authenticateToken } = require("../middleware/auth.js");
+
 const router = require("express").Router();
 
 router.post("/create", authenticateToken, createQuestion);
