@@ -45,6 +45,18 @@ const answerControllers = {
     }
   },
 
+  getAnswersByQuestionId: async (req, res) => {
+    const { id } = req.params;
+    try {
+      const answers = await Answer.find({ question: id }).populate("question");
+      res.status(200).json(answers);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "Error when getting a list of answers.", error });
+    }
+  },
+
   updateAnswer: async (req, res) => {
     const { id } = req.params;
     const { answerText, isCorrect } = req.body;

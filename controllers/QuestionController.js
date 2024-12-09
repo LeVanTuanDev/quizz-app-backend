@@ -49,6 +49,20 @@ const questionControllers = {
     }
   },
 
+  getQuestionByQuizId: async (req, res) => {
+    const { id } = req.params;
+    try {
+      const questions = await Question.find({ quiz: id }).populate(
+        "answers correctAnswer"
+      );
+      res.status(200).json(questions);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "Error when getting a list of questions.", error });
+    }
+  },
+
   updateQuestion: async (req, res) => {
     const { id } = req.params;
     const { questionText, correctAnswer } = req.body;
