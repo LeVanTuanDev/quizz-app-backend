@@ -84,10 +84,10 @@ const participantControllers = {
     }
   },
   createParticipant: async (req, res) => {
-    const { name, studentId } = req.body;
+    const { name } = req.body;
     try {
       // Tạo người chơi mới
-      const participant = new Participant({ name, studentId });
+      const participant = new Participant({ name });
       await participant.save();
       res
         .status(201)
