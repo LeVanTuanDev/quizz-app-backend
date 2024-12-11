@@ -53,7 +53,7 @@ const questionControllers = {
     const { id } = req.params;
     try {
       const questions = await Question.find({ quiz: id }).populate(
-        "answers correctAnswer"
+        "answers correctAnswer quiz"
       );
       res.status(200).json(questions);
     } catch (error) {
