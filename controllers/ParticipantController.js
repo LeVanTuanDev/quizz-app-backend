@@ -66,6 +66,21 @@ const participantControllers = {
     }
   },
 
+  // {
+  //   "participantId": "6759a8a65431bda098f3afef",
+  //   "quizId": "6759b0b51681f80c0e5f5782",
+  //   "answers": [
+  //     {
+  //       "question": "6759b0b51681f80c0e5f5784",
+  //       "answer": "6759b0b51681f80c0e5f5786"
+  //     },
+  //     {
+  //       "question": "6759b0b51681f80c0e5f578b",
+  //       "answer": "6759b0b51681f80c0e5f578f"
+  //     }
+  //   ]
+  // }
+
   getQuizResult: async (req, res) => {
     const { participantId, quizId } = req.params;
     try {

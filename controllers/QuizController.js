@@ -35,6 +35,8 @@ const quizControllers = {
         questionIds.push(question._id);
 
         const answerIds = [];
+        let correctAnswer = null;
+
         for (const a of q.answers) {
           const answer = new Answer({
             question: question._id,
@@ -43,9 +45,16 @@ const quizControllers = {
           });
           await answer.save({ session }); // Tạo Answer
           answerIds.push(answer._id);
+
+          // Gán correctAnswer nếu isCorrect là true
+          if (a.isCorrect) {
+            correctAnswer = answer._id;
+          }
         }
 
+        // Gán thông tin câu trả lời đúng và danh sách câu trả lời vào Question
         question.answers = answerIds;
+        question.correctAnswer = correctAnswer;
         await question.save({ session });
       }
 
