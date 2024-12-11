@@ -83,6 +83,45 @@ const participantControllers = {
       res.status(500).json({ error: error.message });
     }
   },
+  createParticipant: async (req, res) => {
+    const { name, studentId } = req.body;
+    try {
+      // Tạo người chơi mới
+      const participant = new Participant({ name, studentId });
+      await participant.save();
+      res
+        .status(201)
+        .json({ message: "Participant created successfully", participant });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  // Lấy tất cả người chơi
+  getAllParticipants: async (req, res) => {
+    try {
+      const participants = await Participant.find();
+      res.status(200).json({ participants });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
+  // Lấy người chơi theo ID
+  getParticipantById: async (req, res) => {
+    const { id } = req.params;
+    try {
+      const participant = await Participant.findById(id).populate(
+        "quizResults"
+      );
+      if (!participant) {
+        return res.status(404).json({ message: "Participant not found" });
+      }
+      res.status(200).json({ participant });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
 };
 
 module.exports = participantControllers;
