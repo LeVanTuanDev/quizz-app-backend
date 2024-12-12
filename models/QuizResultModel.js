@@ -7,6 +7,7 @@ const quizResultSchema = new mongoose.Schema({
     {
       question: { type: mongoose.Schema.Types.ObjectId, ref: "Question" },
       answer: { type: mongoose.Schema.Types.ObjectId, ref: "Answer" },
+      answers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Answer" }],
       isCorrect: { type: Boolean },
     },
   ],

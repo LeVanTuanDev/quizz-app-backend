@@ -28,7 +28,12 @@ const participantControllers = {
         }
 
         const isCorrect =
-          question.correctAnswer._id.toString() === answer.answer;
+          question.correctAnswer._id.toString() === answer.answer ||
+          (answer.answers &&
+            answer.answers.some(
+              (a) => a.toString() === question.correctAnswer._id.toString()
+            ));
+
         if (isCorrect) {
           correctCount++;
           // Thêm người chơi vào correctParticipants
@@ -45,6 +50,7 @@ const participantControllers = {
         results.push({
           question: answer.question,
           answer: answer.answer,
+          answers: answer.answers,
           isCorrect,
         });
 
@@ -58,6 +64,8 @@ const participantControllers = {
         quiz: quizId,
         answers: results,
       });
+      await quizResult.save();
+
       await quizResult.save();
 
       // Thêm quizResult vào participant
@@ -101,7 +109,7 @@ const participantControllers = {
       const quizResult = await QuizResult.findOne({
         participant: participantId,
         quiz: quizId,
-      }).populate("answers.question answers.answer");
+      }).populate("answers.question answers.answer answers.answers");
 
       if (!quizResult) {
         return res.status(404).json({ message: "Quiz result not found" });

@@ -1,5 +1,4 @@
 const QuizResult = require("../models/QuizResultModel");
-const Participant = require("../models/ParticipantModel");
 
 const quizResultController = {
   calculateRate: async (req, res) => {
@@ -15,7 +14,14 @@ const quizResultController = {
       }
 
       const totalQuestions = quizResult.answers.length;
-      const correctCount = quizResult.answers.filter((a) => a.isCorrect).length;
+      const correctCount = quizResult.answers.filter(
+        (a) =>
+          a.isCorrect ||
+          (a.answers &&
+            a.answers.some(
+              (ans) => ans.toString() === a.question.correctAnswer.toString()
+            ))
+      ).length;
 
       // Tính tỷ lệ
       const correctRate = (correctCount / totalQuestions) * 100;
