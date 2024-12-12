@@ -29,13 +29,27 @@ const participantControllers = {
 
         const isCorrect =
           question.correctAnswer._id.toString() === answer.answer;
-        if (isCorrect) correctCount++;
+        if (isCorrect) {
+          correctCount++;
+          // Thêm người chơi vào correctParticipants
+          if (!question.correctParticipants.includes(participantId)) {
+            question.correctParticipants.push(participantId);
+          }
+        } else {
+          // Thêm người chơi vào incorrectParticipants
+          if (!question.incorrectParticipants.includes(participantId)) {
+            question.incorrectParticipants.push(participantId);
+          }
+        }
 
         results.push({
           question: answer.question,
           answer: answer.answer,
           isCorrect,
         });
+
+        // Lưu cập nhật cho câu hỏi
+        await question.save();
       }
 
       // Lưu kết quả quiz
