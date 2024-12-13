@@ -3,6 +3,7 @@ const {
   createQuizFull,
   getAllQuizzes,
   getQuizById,
+  getQuizByAuthor,
   updateQuiz,
   updateQuizFull,
   deleteQuiz,
@@ -15,6 +16,7 @@ router.post("/create", authenticateToken, createQuiz);
 router.post("/create-quiz", authenticateToken, createQuizFull);
 router.get("/", getAllQuizzes);
 router.get("/:id", authenticateToken, getQuizById);
+router.get("/author/:id", authenticateToken, getQuizByAuthor);
 router.put("/:id", authenticateToken, updateQuiz);
 router.put("/update-quiz/:id", authenticateToken, updateQuizFull);
 router.delete("/:id", authenticateToken, deleteQuiz);

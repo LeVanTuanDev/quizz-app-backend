@@ -120,6 +120,21 @@ const quizControllers = {
     }
   },
 
+  getQuizByAuthor: async (req, res) => {
+    const { id } = req.params;
+    try {
+      if (!id) {
+        return res
+          .status(400)
+          .json({ message: "Author ID (createdBy) is required." });
+      }
+      const quizzes = await Quiz.find({ createdBy: id }).populate("createdBy");
+      res.status(200).json(quizzes);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+
   updateQuiz: async (req, res) => {
     const { id } = req.params;
     const { questions } = req.body;
