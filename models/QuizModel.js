@@ -5,8 +5,8 @@ const quizSchema = new mongoose.Schema({
   questions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Question" }],
   participantCount: { type: Number, default: 0 },
   questionCount: { type: Number, default: 0 },
-  // correctRate: { type: Number, default: 0 },
-  // incorrectRate: { type: Number, default: 0 },
+  correctRate: { type: Number, default: 0 },
+  incorrectRate: { type: Number, default: 0 },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 });
 

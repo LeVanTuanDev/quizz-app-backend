@@ -79,6 +79,25 @@ const participantControllers = {
         $push: { quizResults: quizResult._id },
       });
 
+      const allResults = await QuizResult.find({ quiz: quizId });
+      const totalParticipants = allResults.length;
+
+      const totalCorrectRate = allResults.reduce(
+        (sum, result) => sum + result.correctRate,
+        0
+      );
+      const totalIncorrectRate = allResults.reduce(
+        (sum, result) => sum + result.incorrectRate,
+        0
+      );
+
+      const averageCorrectRate = totalCorrectRate / totalParticipants;
+      const averageIncorrectRate = totalIncorrectRate / totalParticipants;
+
+      quiz.correctRate = averageCorrectRate;
+      quiz.incorrectRate = averageIncorrectRate;
+      await quiz.save();
+
       res.status(201).json({
         message: "Quiz participation recorded successfully",
         quizResult,
