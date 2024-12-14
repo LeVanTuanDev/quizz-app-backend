@@ -36,6 +36,17 @@ const quizResultController = {
       res.status(500).json({ error: error.message });
     }
   },
+  getQuizResultByQuizId: async (req, res) => {
+    const { quizId } = req.params;
+    try {
+      const quizResults = await QuizResult.find({ quiz: quizId }).populate(
+        "participant answers.answers"
+      );
+      res.status(200).json(quizResults);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
 };
 
 module.exports = quizResultController;

@@ -4,7 +4,7 @@ const {
   getAllQuizzes,
   getQuizById,
   getQuizByAuthor,
-  updateQuiz,
+  // updateQuiz,
   updateQuizFull,
   deleteQuiz,
 } = require("../controllers/QuizController.js");
@@ -17,8 +17,8 @@ router.post("/create-quiz", authenticateToken, createQuizFull);
 router.get("/", getAllQuizzes);
 router.get("/:id", authenticateToken, getQuizById);
 router.get("/author/:id", authenticateToken, getQuizByAuthor);
-router.put("/:id", authenticateToken, updateQuiz);
-router.put("/update-quiz", authenticateToken, updateQuizFull);
+// router.put("/:id", authenticateToken, updateQuiz);
+router.put("/update", authenticateToken, updateQuizFull);
 router.delete("/:id", authenticateToken, deleteQuiz);
 
 module.exports = router;

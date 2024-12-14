@@ -1,24 +1,32 @@
 const Participant = require("../models/ParticipantModel");
 const QuizResult = require("../models/QuizResultModel");
 const Question = require("../models/QuestionModel");
+const Quiz = require("../models/QuizModel");
 
 const participantControllers = {
   participateInQuiz: async (req, res) => {
     const { participantId, quizId, answers } = req.body;
     try {
-      // Xác minh người tham gia
       const participant = await Participant.findById(participantId);
       if (!participant) {
         return res.status(404).json({ message: "Participant not found" });
       }
 
-      // Xử lý kết quả quiz
+      const quiz = await Quiz.findByIdAndUpdate(
+        quizId,
+        { $inc: { participantCount: 1 } },
+        { new: true }
+      );
+      if (!quiz) {
+        return res.status(404).json({ message: "Quiz not found" });
+      }
+
       let correctCount = 0;
       const results = [];
 
       for (const answer of answers) {
         const question = await Question.findById(answer.question).populate(
-          "correctAnswer"
+          "answers correctAnswer"
         );
 
         if (!question) {
@@ -36,52 +44,44 @@ const participantControllers = {
 
         if (isCorrect) {
           correctCount++;
-          // Thêm người chơi vào correctParticipants
           if (!question.correctParticipants.includes(participantId)) {
             question.correctParticipants.push(participantId);
           }
         } else {
-          // Thêm người chơi vào incorrectParticipants
           if (!question.incorrectParticipants.includes(participantId)) {
             question.incorrectParticipants.push(participantId);
           }
         }
 
         results.push({
-          question: answer.question,
+          question: question._id,
           answer: answer.answer,
-          answers: answer.answers,
+          allAnswers: question.answers.map((ans) => ans._id), // Lưu tất cả đáp án
           isCorrect,
         });
 
-        // Lưu cập nhật cho câu hỏi
         await question.save();
       }
 
-      // Lưu kết quả quiz
+      const totalQuestions = answers.length;
+      const correctRate = (correctCount / totalQuestions) * 100;
+
       const quizResult = new QuizResult({
         participant: participantId,
         quiz: quizId,
+        correctRate,
+        incorrectRate: 100 - correctRate,
         answers: results,
       });
       await quizResult.save();
 
-      await quizResult.save();
-
-      // Thêm quizResult vào participant
       await Participant.findByIdAndUpdate(participantId, {
         $push: { quizResults: quizResult._id },
       });
 
-      // Tính toán số liệu
-      const totalQuestions = answers.length;
-      const correctRate = (correctCount / totalQuestions) * 100;
-
       res.status(201).json({
         message: "Quiz participation recorded successfully",
         quizResult,
-        correctRate,
-        incorrectRate: 100 - correctRate,
       });
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -109,7 +109,7 @@ const participantControllers = {
       const quizResult = await QuizResult.findOne({
         participant: participantId,
         quiz: quizId,
-      }).populate("answers.question answers.answer answers.answers");
+      }).populate("answers.question answers.answer answers.allAnswers");
 
       if (!quizResult) {
         return res.status(404).json({ message: "Quiz result not found" });
