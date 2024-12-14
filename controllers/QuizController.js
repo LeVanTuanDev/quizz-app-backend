@@ -158,91 +158,110 @@ const quizControllers = {
   },
 
   updateQuizFull: async (req, res) => {
-    const { id } = req.params; // Quiz ID
-    const { questions, answers, ...quizData } = req.body;
+    const { quizId, title, questions } = req.body;
 
     try {
-      const quiz = await Quiz.findById(id);
-      if (!quiz) return res.status(404).json({ message: "Quiz not found." });
-
-      Object.assign(quiz, quizData);
-
-      if (questions) {
-        for (const question of questions) {
-          const { id: questionId, questionText, correctAnswer } = question;
-          if (questionId) {
-            await Question.findByIdAndUpdate(
-              questionId,
-              { questionText, correctAnswer },
-              { new: true }
-            );
-          } else {
-            const newQuestion = new Question({
-              questionText,
-              correctAnswer,
-              quiz: quiz._id,
-            });
-            await newQuestion.save();
-            quiz.questions.push(newQuestion._id);
-          }
-        }
+      const quiz = await Quiz.findById(quizId);
+      if (!quiz) {
+        return res.status(404).json({ message: "Quiz not found" });
       }
 
-      if (answers) {
-        for (const answer of answers) {
-          const { id: answerId, answerText, isCorrect } = answer;
+      quiz.title = title || quiz.title;
+
+      for (const questionData of questions) {
+        const { questionId, questionText, answers } = questionData;
+
+        let question;
+
+        if (questionId) {
+          question = await Question.findById(questionId);
+          if (!question) {
+            return res
+              .status(404)
+              .json({ message: `Question with ID ${questionId} not found` });
+          }
+          question.questionText = questionText || question.questionText;
+        } else {
+          question = new Question({
+            quiz: quizId,
+            questionText,
+          });
+          quiz.questions.push(question._id);
+        }
+
+        for (const answerData of answers) {
+          const { answerId, answerText, isCorrect } = answerData;
+
           if (answerId) {
-            await Answer.findByIdAndUpdate(
-              answerId,
-              { answerText, isCorrect },
-              { new: true }
-            );
+            const answer = await Answer.findById(answerId);
+            if (!answer) {
+              return res
+                .status(404)
+                .json({ message: `Answer with ID ${answerId} not found` });
+            }
+            answer.answerText = answerText || answer.answerText;
+            answer.isCorrect =
+              isCorrect !== undefined ? isCorrect : answer.isCorrect;
+            await answer.save();
           } else {
             const newAnswer = new Answer({
+              question: question._id,
               answerText,
               isCorrect,
             });
             await newAnswer.save();
+            question.answers.push(newAnswer._id);
           }
         }
+
+        await question.save();
       }
+      await quiz.save();
 
-      quiz.questionCount = quiz.questions.length;
-      const updatedQuiz = await quiz.save();
-
-      res
+      return res
         .status(200)
-        .json({ message: "Quiz updated successfully", updatedQuiz });
+        .json({ message: "Quiz, questions, and answers updated successfully" });
     } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Error when updating quiz", error: error.message });
+      console.error(error);
+      return res.status(500).json({
+        message: "An error occurred while updating the quiz",
+        error: error.message,
+      });
     }
   },
 
   // {
-  //   "title": "Updated Quiz Title",
-  //   "description": "This is the updated description for the quiz.",
+  //   "quizId": "_id",
+  //   "title": "Updated Title",
   //   "questions": [
   //     {
-  //       "id": "64b7e8d8f7a98c2c4e123456",  // ID của câu hỏi cần cập nhật
-  //       "questionText": "What is the capital of France?",
-  //       "correctAnswer": "Paris"
+  //       "questionId": "_id", // Có question Id thì sẽ cập nhật
+  //       "questionText": "Updated Question Text?",
+  //       "answers": [
+  //         {
+  //           "answerId": "_id",
+  //           "answerText": "Updated Answer Text 1",
+  //           "isCorrect": true
+  //         },
+  //         {
+  //           "answerId": "_id",
+  //           "answerText": "Updated Answer Text 2",
+  //           "isCorrect": false
+  //         }
+  //       ]
   //     },
   //     {
-  //       "questionText": "What is 2 + 2?", // Câu hỏi mới (không có ID)
-  //       "correctAnswer": "4"
-  //     }
-  //   ],
-  //   "answers": [
-  //     {
-  //       "id": "64b7e9f9f7a98c2c4e654321", // ID của câu trả lời cần cập nhật
-  //       "answerText": "Berlin",
-  //       "isCorrect": false
-  //     },
-  //     {
-  //       "answerText": "4", // Câu trả lời mới (không có ID)
-  //       "isCorrect": true
+  //       "questionText": "New Question Text?", // Không có question Id thì sẽ tạo mới
+  //       "answers": [
+  //         {
+  //           "answerText": "New Answer Text 1",
+  //           "isCorrect": true
+  //         },
+  //         {
+  //           "answerText": "New Answer Text 2",
+  //           "isCorrect": false
+  //         }
+  //       ]
   //     }
   //   ]
   // }
