@@ -40,7 +40,7 @@ const quizResultController = {
     const { quizId } = req.params;
     try {
       const quizResults = await QuizResult.find({ quiz: quizId }).populate(
-        "participant answers.answers"
+        "participant"
       );
       res.status(200).json(quizResults);
     } catch (error) {
