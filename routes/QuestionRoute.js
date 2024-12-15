@@ -12,8 +12,8 @@ const router = require("express").Router();
 
 router.post("/create", authenticateToken, createQuestion);
 router.get("/", getAllQuestions);
-router.get("/:id", authenticateToken, getQuestionById);
-router.get("/quiz/:id", authenticateToken, getQuestionByQuizId);
+router.get("/:id", getQuestionById);
+router.get("/quiz/:id", getQuestionByQuizId);
 router.put("/:id", authenticateToken, updateQuestion);
 router.delete("/:id", authenticateToken, deleteQuestion);
 
