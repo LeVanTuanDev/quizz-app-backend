@@ -8,10 +8,8 @@ const quizResultSchema = new mongoose.Schema({
   answers: [
     {
       question: { type: mongoose.Schema.Types.ObjectId, ref: "Question" },
-      answer: { type: mongoose.Schema.Types.ObjectId, ref: "Answer" }, // Đáp án của người tham gia
-      allAnswers: [
-        { type: mongoose.Schema.Types.ObjectId, ref: "Answer" }, // Tất cả đáp án của câu hỏi
-      ],
+      answer: { type: mongoose.Schema.Types.ObjectId, ref: "Answer" },
+      allAnswers: [{ type: mongoose.Schema.Types.ObjectId, ref: "Answer" }],
       isCorrect: { type: Boolean },
     },
   ],

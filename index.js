@@ -10,7 +10,9 @@ const cors = require("cors");
 
 app.use(
   cors({
-    origin: "*",
+    // origin: "*",
+    origin: ["https://quizz-app-vuejs.vercel.app"], // Thay bằng URL frontend
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
 );
