@@ -202,6 +202,11 @@ const quizControllers = {
             answer.answerText = answerText || answer.answerText;
             answer.isCorrect =
               isCorrect !== undefined ? isCorrect : answer.isCorrect;
+
+            if (isCorrect) {
+              question.correctAnswer = answer._id;
+            }
+
             await answer.save();
           } else {
             const newAnswer = new Answer({
@@ -211,6 +216,10 @@ const quizControllers = {
             });
             await newAnswer.save();
             question.answers.push(newAnswer._id);
+
+            if (isCorrect) {
+              question.correctAnswer = newAnswer._id;
+            }
           }
         }
 
