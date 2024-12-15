@@ -7,11 +7,13 @@ const participantControllers = {
   participateInQuiz: async (req, res) => {
     const { participantId, quizId, answers } = req.body;
     try {
+      // Tìm người tham gia
       const participant = await Participant.findById(participantId);
       if (!participant) {
         return res.status(404).json({ message: "Participant not found" });
       }
 
+      // Tìm quiz và tăng số lượng người tham gia
       const quiz = await Quiz.findByIdAndUpdate(
         quizId,
         { $inc: { participantCount: 1 } },
@@ -24,6 +26,7 @@ const participantControllers = {
       let correctCount = 0;
       const results = [];
 
+      // Duyệt qua danh sách câu trả lời
       for (const answer of answers) {
         const question = await Question.findById(answer.question).populate(
           "answers correctAnswer"
@@ -35,6 +38,14 @@ const participantControllers = {
             .json({ message: `Question ${answer.question} not found` });
         }
 
+        // Kiểm tra nếu `correctAnswer` tồn tại
+        if (!question.correctAnswer) {
+          return res.status(500).json({
+            message: `Question ${question._id} has no correctAnswer.`,
+          });
+        }
+
+        // Xác định câu trả lời đúng
         const isCorrect =
           question.correctAnswer._id.toString() === answer.answer ||
           (answer.answers &&
@@ -53,19 +64,24 @@ const participantControllers = {
           }
         }
 
+        // Thêm kết quả câu trả lời vào danh sách kết quả
         results.push({
           question: question._id,
           answer: answer.answer,
-          allAnswers: question.answers.map((ans) => ans._id), // Lưu tất cả đáp án
+          allAnswers: question.answers
+            ? question.answers.map((ans) => ans._id)
+            : [], // Kiểm tra `answers`
           isCorrect,
         });
 
+        // Lưu thay đổi cho câu hỏi
         await question.save();
       }
 
       const totalQuestions = answers.length;
       const correctRate = (correctCount / totalQuestions) * 100;
 
+      // Tạo kết quả quiz
       const quizResult = new QuizResult({
         participant: participantId,
         quiz: quizId,
@@ -75,10 +91,12 @@ const participantControllers = {
       });
       await quizResult.save();
 
+      // Cập nhật kết quả cho participant
       await Participant.findByIdAndUpdate(participantId, {
         $push: { quizResults: quizResult._id },
       });
 
+      // Tính toán tỷ lệ đúng/sai trung bình
       const allResults = await QuizResult.find({ quiz: quizId });
       const totalParticipants = allResults.length;
 

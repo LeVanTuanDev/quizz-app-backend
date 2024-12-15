@@ -166,22 +166,28 @@ const quizControllers = {
         return res.status(404).json({ message: "Quiz not found" });
       }
 
+      // Cập nhật tiêu đề quiz (nếu có)
       quiz.title = title || quiz.title;
 
+      // Duyệt qua danh sách câu hỏi
       for (const questionData of questions) {
         const { questionId, questionText, answers } = questionData;
 
         let question;
 
         if (questionId) {
+          // Tìm câu hỏi cũ
           question = await Question.findById(questionId);
           if (!question) {
             return res
               .status(404)
               .json({ message: `Question with ID ${questionId} not found` });
           }
+
+          // Cập nhật nội dung câu hỏi
           question.questionText = questionText || question.questionText;
         } else {
+          // Tạo câu hỏi mới
           question = new Question({
             quiz: quizId,
             questionText,
@@ -189,10 +195,14 @@ const quizControllers = {
           quiz.questions.push(question._id);
         }
 
+        // Xử lý danh sách đáp án
+        let correctAnswerExists = false;
+
         for (const answerData of answers) {
           const { answerId, answerText, isCorrect } = answerData;
 
           if (answerId) {
+            // Cập nhật đáp án cũ
             const answer = await Answer.findById(answerId);
             if (!answer) {
               return res
@@ -205,10 +215,12 @@ const quizControllers = {
 
             if (isCorrect) {
               question.correctAnswer = answer._id;
+              correctAnswerExists = true;
             }
 
             await answer.save();
           } else {
+            // Thêm đáp án mới
             const newAnswer = new Answer({
               question: question._id,
               answerText,
@@ -219,12 +231,22 @@ const quizControllers = {
 
             if (isCorrect) {
               question.correctAnswer = newAnswer._id;
+              correctAnswerExists = true;
             }
           }
         }
 
+        // Kiểm tra nếu không có correctAnswer
+        if (!correctAnswerExists) {
+          return res.status(400).json({
+            message: `Question "${question.questionText}" must have at least one correct answer.`,
+          });
+        }
+
         await question.save();
       }
+
+      // Lưu quiz sau khi cập nhật
       await quiz.save();
 
       return res
